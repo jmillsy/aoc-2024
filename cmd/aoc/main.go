@@ -8,11 +8,11 @@ func main() {
 
 	var d day.Day
 
-	day1, err := day.NewDay1(false)
+	day, err := day.NewDay2(true)
 	if err != nil {
 		panic(err)
 	}
-	d = day1
+	d = day
 
 	d.Part1()
 	d.Part2()

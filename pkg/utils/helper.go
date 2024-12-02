@@ -73,3 +73,33 @@ func CountOccurrences(list []int, number int) int {
 	}
 	return count
 }
+
+func ReadMatrixFromFile(filePath string) ([][]int, error) {
+	file, err := os.Open(filePath)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	var matrix [][]int
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := scanner.Text()
+		columns := strings.Fields(line)
+		var row []int
+		for _, col := range columns {
+			value, err := strconv.Atoi(col)
+			if err != nil {
+				return nil, err
+			}
+			row = append(row, value)
+		}
+		matrix = append(matrix, row)
+	}
+
+	if err := scanner.Err(); err != nil {
+		return nil, err
+	}
+
+	return matrix, nil
+}

@@ -14,12 +14,12 @@ func NewDay1(debug bool) (*Day1, error) {
 
 	day1 := &Day1{}
 
-	list1, err := utils.ReadColumnFromFile("day1/input.txt", 0)
+	list1, err := utils.ReadColumnFromFile("inputs/day1.txt", 0)
 	if err != nil {
 		return nil, err
 	}
 
-	list2, err := utils.ReadColumnFromFile("day1/input.txt", 1)
+	list2, err := utils.ReadColumnFromFile("inputs/day1.txt", 1)
 	if err != nil {
 		return nil, err
 	}

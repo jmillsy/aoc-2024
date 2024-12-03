@@ -2,13 +2,11 @@ package day
 
 import (
 	"aoc-2024/pkg/utils"
-	"fmt"
-	"math"
 )
 
 type Day2 struct {
-	TOLERANCE int
-	DEBUG     bool
+	tolerance int
+	debug     bool
 
 	reports [][]int
 }
@@ -16,8 +14,8 @@ type Day2 struct {
 func NewDay2(debug bool) (*Day2, error) {
 
 	day2 := &Day2{
-		TOLERANCE: 0,
-		DEBUG:     debug,
+		tolerance: 0,
+		debug:     debug,
 	}
 
 	inputFileName := "inputs/day2.txt"
@@ -37,18 +35,13 @@ func NewDay2(debug bool) (*Day2, error) {
 
 func (d *Day2) Part1() {
 
-	d.TOLERANCE = 0
-
+	d.tolerance = 0
 	countOfSafeReports := 0
 
 	for _, row := range d.reports {
-		if d.DetermineLevelSafety(row) {
+		if d.SafeLevel(row) {
 			countOfSafeReports++
 		}
-
-		// for j, value := range row {
-		// 	fmt.Printf("reports[%d][%d] = %d\n", i, j, value)
-		// }
 	}
 
 	println("Count of safe reports: ", countOfSafeReports)
@@ -57,12 +50,10 @@ func (d *Day2) Part1() {
 
 func (d *Day2) Part2() {
 
-	d.TOLERANCE = 1
-
 	countOfSafeReports := 0
 
 	for _, row := range d.reports {
-		if d.DetermineLevelSafety(row) {
+		if d.SafeLevelWithTolerance(row) {
 			countOfSafeReports++
 		}
 	}
@@ -71,64 +62,58 @@ func (d *Day2) Part2() {
 
 }
 
-func (d *Day2) DetermineLevelSafety(level []int) bool {
+func (d *Day2) SafeLevelWithTolerance(level []int) bool {
 
-	withinThresholdMagnitude := d.CheckSequentialDifferences(level)
+	isSafe := false
+	isSafe = d.SafeLevel(level)
 
-	allIncreasing := d.VerifyAllLevelsAreIncreasing(level)
-	allDecreasing := d.VerifyAllLevelsAreDecreasing(level)
+	if isSafe {
+		return true
+	} else {
+		// Remove the baddie and check again
+		for i := 0; i < len(level); i++ {
+			modifiedLevels := []int{}
+			modifiedLevels = append(modifiedLevels, level[:i]...)
+			modifiedLevels = append(modifiedLevels, level[i+1:]...)
+			isSafe = d.SafeLevel(modifiedLevels)
 
-	if d.DEBUG {
-		fmt.Println()
-		fmt.Println(withinThresholdMagnitude, ": ", level)
-		fmt.Println(allIncreasing, ": ", level)
-		fmt.Println(allDecreasing, ": ", level)
-	}
-
-	withinThresholdLinear := allIncreasing || allDecreasing
-
-	return withinThresholdMagnitude && withinThresholdLinear
-
-}
-
-func (d *Day2) CheckSequentialDifferences(list []int) bool {
-	tolerance := 0
-	for i := 0; i < len(list)-1; i++ {
-		if math.Abs(float64(list[i]-list[i+1])) > 3 {
-			tolerance++
-			if tolerance > d.TOLERANCE {
-				return false
+			if isSafe {
+				return true
 			}
 		}
 	}
-	return true
+
+	return false
+
 }
 
-func (d *Day2) VerifyAllLevelsAreIncreasing(list []int) bool {
+func (d *Day2) SafeLevel(levels []int) bool {
+	isIncreasing := true
+	isSafe := true
+	badLevel := 0
 
-	errorCount := 0
-	for i := 0; i < len(list)-1; i++ {
+	i := 0
+	for i = 1; i < len(levels); i++ {
+		diff := levels[i] - levels[i-1]
 
-		if list[i] >= list[i+1] {
-			errorCount++
-			if errorCount > d.TOLERANCE {
-				fmt.Println("returning false")
-				return false
-			}
+		if diff == 0 {
+			badLevel++
+			isSafe = false
+			break
+		}
+
+		if diff < -3 || diff > 3 {
+			isSafe = false
+			break
+		}
+
+		if i == 1 && diff < 0 {
+			isIncreasing = false
+		} else if (isIncreasing && diff < 0) || (!isIncreasing && diff > 0) {
+			isSafe = false
+			break
 		}
 	}
-	return true
-}
 
-func (d *Day2) VerifyAllLevelsAreDecreasing(list []int) bool {
-	tolerance := 0
-	for i := 0; i < len(list)-1; i++ {
-		if list[i] <= list[i+1] {
-			tolerance++
-			if tolerance > d.TOLERANCE {
-				return false
-			}
-		}
-	}
-	return true
+	return isSafe
 }

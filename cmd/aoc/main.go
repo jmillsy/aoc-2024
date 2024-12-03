@@ -8,7 +8,7 @@ func main() {
 
 	var d day.Day
 
-	day, err := day.NewDay2(true)
+	day, err := day.NewDay3(false)
 	if err != nil {
 		panic(err)
 	}
